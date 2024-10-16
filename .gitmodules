@@ -1,0 +1,7 @@
+[submodule "lib/freertos-kernel"]
+	path = lib/freertos-kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel
+	branch = tag/V11.1.0
+[submodule "lib/avr-cmake"]
+	path = lib/avr-cmake
+	url = https://github.com/tttapa/Arduino-AVR-CMake
