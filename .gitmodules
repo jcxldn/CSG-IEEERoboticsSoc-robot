@@ -5,3 +5,6 @@
 [submodule "lib/avr-cmake"]
 	path = lib/avr-cmake
 	url = https://github.com/tttapa/Arduino-AVR-CMake
+[submodule "lib/freertos-arduino"]
+	path = lib/freertos-arduino
+	url = https://github.com/feilipu/Arduino_FreeRTOS_Library
