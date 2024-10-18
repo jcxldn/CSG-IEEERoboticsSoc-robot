@@ -8,3 +8,6 @@
 [submodule "lib/freertos-arduino"]
 	path = lib/freertos-arduino
 	url = https://github.com/feilipu/Arduino_FreeRTOS_Library
+[submodule "lib/cmaw"]
+	path = lib/cmaw
+	url = https://github.com/jcxldn/CMAW
