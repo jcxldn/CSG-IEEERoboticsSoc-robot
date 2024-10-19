@@ -20,6 +20,13 @@ void setup()
     ;
   }
 
+#ifdef PLATFORM_TYPE_QEMU
+  Serial.println("Using QEMU platform.");
+#endif
+#ifdef PLATFORM_TYPE_AVR
+  Serial.println("Using AVR platform.");
+#endif
+
   printf("%s: Instanciating classes\n", __PRETTY_FUNCTION__);
 
   Drive drive;

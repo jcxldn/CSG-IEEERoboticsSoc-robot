@@ -43,7 +43,7 @@ include(./cmake/cmaw-lib.cmake)
 
 # Project definitions
 # Src: https://github.com/raspberrypi/pico-examples/blob/f800a7e3031e278062639e070c5764adb4a8a0fc/CMakeLists.txt#L6
-project(${PROJECT} C CXX ASM)
+project(${PROJECT}-core C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -53,22 +53,34 @@ set(FREERTOS_ARDUINO_PATH ../lib/freertos-arduino/src CACHE PATH "Path to the Fr
 set(FREERTOS_PORT_PATH portable/ThirdParty/GCC/ATmega)
 include(./cmake/freertos-lib.cmake)
 
-add_executable(${PROJECT} src/main.cpp)
+#add_executable(${PROJECT}-core src/main.cpp)
+add_library(${PROJECT}-core INTERFACE)
 
-target_sources(${PROJECT} PUBLIC
+target_sources(${PROJECT}-core INTERFACE
+     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/motor_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
 )
 
-#add_executable(${PROJECT} ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
+#add_executable(${PROJECT}-core ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
 
-target_link_libraries(${PROJECT} PUBLIC ArduinoCore ArduinoWire MPU6050 FastLED LibPrintf FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
-target_compile_options(${PROJECT} PRIVATE
+target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED LibPrintf FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
+target_compile_options(${PROJECT}-core INTERFACE
     "-Wall"
     "-Wextra"
     "-pedantic"
 )
 
+
+
+add_executable(${PROJECT} src/null.c)
+target_compile_definitions(${PROJECT} PRIVATE PLATFORM_TYPE_AVR)
+target_link_libraries(${PROJECT} ${PROJECT}-core)
 arduino_avr_hex(${PROJECT})
+
+add_executable(${PROJECT}-qemu src/null.c)
+target_compile_definitions(${PROJECT}-qemu PRIVATE PLATFORM_TYPE_QEMU)
+target_link_libraries(${PROJECT}-qemu ${PROJECT}-core)
+arduino_avr_hex(${PROJECT}-qemu)

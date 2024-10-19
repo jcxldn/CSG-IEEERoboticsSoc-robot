@@ -15,6 +15,12 @@ Pixel::Pixel()
 
 void Pixel::color(CRGB color)
 {
+// QEMU stops (freezes?) at FastLED.show() for some reason, so stub this function if using qemu
+#ifdef PLATFORM_TYPE_QEMU
+    printf("%s: Function not available on QEMU\n", __PRETTY_FUNCTION__);
+    return;
+#endif
+
     // Take the mutex, which signals the pixel as unavailable
     // If the mutex is in use, this will **block** until it is available again.
     xSemaphoreTake(this->xLedMutex, portMAX_DELAY);
