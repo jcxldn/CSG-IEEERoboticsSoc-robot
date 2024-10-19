@@ -12,7 +12,18 @@ set (CMAW_ARDUINOCLI_BINARY_NOSYSTEM ON CACHE BOOL "When enabled, CMAW will skip
 include("../lib/cmaw/CMAW.cmake")
 cmaw_init_config("./cmaw/")
 cmaw_update_core_index()
-cmaw_install_cores("arduino:avr")  
+cmaw_install_cores("arduino:avr")
+
+## Enable "unsafe" install (ie. install from git repo) if not enabled
+#cmaw_config_get_bool("library.enable_unsafe_install" unsafeInstallFlag)
+#if (NOT unsafeInstallFlag)
+#    message("setting arduino unsafe install flag")
+#    cmaw_config_set("library.enable_unsafe_install" "true")
+#endif()
+#message("arduino unsafe install flag: ${unsafeInstallFlag}")
+#
+## Install libraries from git src
+#cmaw_install_libraries_git("https://github.com/sparkfun/SparkFun_TB6612FNG_Arduino_Library")
 
 # Setup AVR toolchain
 # must be before project() as eg CMAKE_C_COMPILER would be overriden by it
@@ -37,6 +48,11 @@ set(FREERTOS_PORT_PATH portable/ThirdParty/GCC/ATmega)
 include(./freertos-lib.cmake)
 
 add_executable(${PROJECT} src/main.cpp)
+
+target_sources(${PROJECT} PUBLIC
+     ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/motor_controller.cpp
+)
 
 #add_executable(${PROJECT} ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
 

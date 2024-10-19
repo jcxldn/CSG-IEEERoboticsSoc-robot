@@ -1,5 +1,8 @@
 #include "main.h"
 
+#include "drive.h"
+#include "motor_controller.h"
+
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 
@@ -13,6 +16,8 @@ void setup()
     ;
   }
 
+  Drive drive;
+
   xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
 }
 
@@ -22,13 +27,15 @@ void sensord(void *param)
 {
   (void)param;
 
-  int value = 0;
   for (;;) // never return or exit, infinite loop
   {
-    value = analogRead(A0);
-    Serial.print("A0: ");
-    Serial.print(value, HEX);
-    Serial.print("\n");
+    MotorController::fwd(255);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    MotorController::fwd(0);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    MotorController::rev(255);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    MotorController::fwd(0);
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 }
