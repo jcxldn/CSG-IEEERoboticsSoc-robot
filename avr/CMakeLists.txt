@@ -13,6 +13,9 @@ include("../lib/cmaw/CMAW.cmake")
 cmaw_init_config("./cmaw/")
 cmaw_update_core_index()
 cmaw_install_cores("arduino:avr")
+cmaw_install_libraries("MPU6050")
+cmaw_install_libraries("FastLED")
+cmaw_install_libraries("LibPrintf")
 
 ## Enable "unsafe" install (ie. install from git repo) if not enabled
 #cmaw_config_get_bool("library.enable_unsafe_install" unsafeInstallFlag)
@@ -31,8 +34,11 @@ cmaw_install_cores("arduino:avr")
 include(../lib/avr-cmake/cmake/toolchain/uno.toolchain.cmake)
 #include(../lib/avr-cmake/cmake/lto.cmake) # seemingly unsuported by avr-gcc?
 include(../lib/avr-cmake/cmake/arduino_core.cmake)
+include(../lib/avr-cmake/cmake/arduino_wire.cmake)
 include(../lib/avr-cmake/cmake/arduino_hex.cmake)
 include(../lib/avr-cmake/cmake/arduino_upload.cmake)
+
+include(./cmake/cmaw-lib.cmake)
 
 
 # Project definitions
@@ -45,21 +51,24 @@ set(CMAKE_CXX_STANDARD 17)
 set(FREERTOS_KERNEL_PATH ../lib/freertos-kernel CACHE PATH "Path to the FreeRTOS Kernel")
 set(FREERTOS_ARDUINO_PATH ../lib/freertos-arduino/src CACHE PATH "Path to the FreeRTOS Arduino lib")
 set(FREERTOS_PORT_PATH portable/ThirdParty/GCC/ATmega)
-include(./freertos-lib.cmake)
+include(./cmake/freertos-lib.cmake)
 
 add_executable(${PROJECT} src/main.cpp)
 
 target_sources(${PROJECT} PUBLIC
      ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/motor_controller.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
 )
 
 #add_executable(${PROJECT} ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
 
-target_link_libraries(${PROJECT} PUBLIC ArduinoCore FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
+target_link_libraries(${PROJECT} PUBLIC ArduinoCore ArduinoWire MPU6050 FastLED LibPrintf FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
 target_compile_options(${PROJECT} PRIVATE
     "-Wall"
     "-Wextra"
     "-pedantic"
 )
+
 arduino_avr_hex(${PROJECT})

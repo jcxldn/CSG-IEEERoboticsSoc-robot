@@ -2,9 +2,13 @@
 
 #include "drive.h"
 #include "motor_controller.h"
+#include "mpu_controller.h"
 
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
+
+// https://github.com/embeddedartistry/arduino-printf - printf()
+#include <LibPrintf.h>
 
 void setup()
 {
@@ -16,7 +20,13 @@ void setup()
     ;
   }
 
+  printf("%s: Instanciating classes\n", __PRETTY_FUNCTION__);
+
   Drive drive;
+  Pixel p;
+  MPUController mpu(&p);
+
+  printf("%s: Registering tasks\n", __PRETTY_FUNCTION__);
 
   xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
 }
