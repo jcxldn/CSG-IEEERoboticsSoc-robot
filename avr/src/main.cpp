@@ -27,13 +27,13 @@ void setup()
   Serial.println("Using AVR platform.");
 #endif
 
-  printf("%s: Instanciating classes\n", __PRETTY_FUNCTION__);
+  printf("%s: Instanciating classes\n\r", __PRETTY_FUNCTION__);
 
   Drive drive;
   Pixel p;
   MPUController mpu(&p);
 
-  printf("%s: Registering tasks\n", __PRETTY_FUNCTION__);
+  printf("%s: Registering tasks\n\r", __PRETTY_FUNCTION__);
 
   xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
 }
