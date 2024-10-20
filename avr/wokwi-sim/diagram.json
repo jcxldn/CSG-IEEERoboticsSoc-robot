@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno1", "top": 213.73, "left": 79.14, "attrs": {} },
+    {
+      "type": "wokwi-mpu6050",
+      "id": "mpu1",
+      "top": 303.11,
+      "left": 370.06,
+      "rotate": 270,
+      "attrs": { "accelZ": "0" }
+    },
+    {
+      "type": "wokwi-neopixel",
+      "id": "rgb1",
+      "top": 229.43,
+      "left": 404.54,
+      "rotate": 180,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 265.98,
+      "left": 384.94,
+      "attrs": { "value": "1000" }
+    },
+    { "type": "wokwi-junction", "id": "j1", "top": 240.52, "left": 372.36, "attrs": {} },
+    {
+      "type": "wokwi-servo",
+      "id": "servo1",
+      "top": 76.53,
+      "left": 91.54,
+      "rotate": 180,
+      "attrs": {}
+    },
+        {
+      "type": "chip-tb6612fng",
+      "id": "chip1",
+      "top": 50,
+      "left": 350.72,
+      "rotate": 90,
+      "attrs": {}
+    }, {
+      "type": "chip-scope",
+      "id": "scope1",
+      "top": -450.18,
+      "left": -24,
+      "attrs": {
+        "sampleTimeMs": "100",
+        "triggerChannel": "0",
+        "triggerMode": "1",
+        "crtColor": "0",
+        "trace0Color": "14",
+        "trace1Color": "12"
+      }
+    }
+  ],
+  "connections": [
+    [ "uno1:5V", "mpu1:VCC", "red", [ "v19.7", "h118.4", "v-124.72" ] ],
+    [ "uno1:GND.2", "mpu1:GND", "black", [ "v14.9", "h113.7", "v-110.32" ] ],
+    [ "uno1:A5", "mpu1:SCL", "green", [ "h32.5", "v-85.82" ] ],
+    [ "uno1:A4", "mpu1:SDA", "white", [ "v10.1", "h46.8", "v-86.32" ] ],
+    [ "r1:2", "uno1:GND.1", "black", [ "v-67.2", "h-190.5" ] ],
+    [ "rgb1:VSS", "uno1:GND.1", "black", [ "v-30.3", "h-209.9" ] ],
+    [ "rgb1:DIN", "j1:J", "#8f4814", [ "h0" ] ],
+    [ "j1:J", "r1:1", "#8f4814", [ "v0" ] ],
+    [ "uno1:4", "j1:J", "#8f4814", [ "v-13.8", "h80.52" ] ],
+    [ "rgb1:VDD", "uno1:5V", "red", [ "h9.8", "v12.65", "h-77.2", "v152.95", "h-118" ] ],
+    [ "servo1:PWM", "uno1:5", "orange", [ "h0" ] ],
+    [ "uno1:7", "servo1:V+", "orange", [ "h12.6", "v-85.7" ] ],
+    [ "servo1:GND", "uno1:8", "orange", [ "h14.4", "v62.4", "h-23.8" ] ]
+  ],
+  "dependencies": { "chip-scope": "github:Dlloydev/Wokwi-Chip-Scope@1.0.7" }
+}

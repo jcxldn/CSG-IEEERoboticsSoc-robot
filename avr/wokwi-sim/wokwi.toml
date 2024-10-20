@@ -1,0 +1,8 @@
+[wokwi]
+version = 1
+firmware = '../build/robot-avr.hex'
+elf = '../build/robot-avr.elf'
+
+[[chip]]
+name = 'tb6612fng'
+binary = '../build/wokwi-sim/chips/tb6612fng.wasm'

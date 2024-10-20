@@ -84,3 +84,5 @@ add_executable(${PROJECT}-qemu src/null.c)
 target_compile_definitions(${PROJECT}-qemu PRIVATE PLATFORM_TYPE_QEMU)
 target_link_libraries(${PROJECT}-qemu ${PROJECT}-core)
 arduino_avr_hex(${PROJECT}-qemu)
+
+add_subdirectory(./wokwi-sim/chips)

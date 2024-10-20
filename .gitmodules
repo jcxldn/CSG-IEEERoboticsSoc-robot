@@ -11,3 +11,9 @@
 [submodule "lib/cmaw"]
 	path = lib/cmaw
 	url = https://github.com/jcxldn/CMAW
+[submodule "lib/wokwi-sim/zig-cross"]
+	path = lib/wokwi-sim/zig-cross
+	url = https://github.com/jcxldn/zig-cross
+[submodule "lib/wokwi-sim/walloc"]
+	path = lib/wokwi-sim/walloc
+	url = https://github.com/wingo/walloc
