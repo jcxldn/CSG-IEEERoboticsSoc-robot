@@ -12,9 +12,6 @@
 #include <I2Cdev.cpp>
 #endif
 
-// https://github.com/embeddedartistry/arduino-printf - printf()
-#include <LibPrintf.h>
-
 MPUController::MPUController(Pixel *p)
 {
     MPUState state = this->init();
@@ -22,13 +19,10 @@ MPUController::MPUController(Pixel *p)
     if (state == MPUState::CONNECTED)
     {
         // Continue
-
-        printf("%s: Successfully connected to MPU.\n\r", __PRETTY_FUNCTION__);
     }
     else
     {
         // Show error
-        printf("%s: Unable to connect to MPU.\n\r", __PRETTY_FUNCTION__);
         p->color(CRGB::Red);
     }
 }
@@ -37,10 +31,8 @@ MPUState MPUController::init()
 {
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 
-    printf("%s: Initialising MPU using Arduino Wire library.\n\r", __PRETTY_FUNCTION__);
     Wire.begin();
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-    printf("%s: Initialising MPU using Fastwire library.\n\r", __PRETTY_FUNCTION__);
     Fastwire::setup(400, true);
 #endif
     this->mpu.initialize();

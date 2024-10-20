@@ -63,7 +63,7 @@ void Drive::create_queue()
     if (xPointerQueue == NULL) // 0 == NULL
     {
         // Queue not created
-        printf("Queue not created.");
+        // TODO: error state here
     }
     else
     {

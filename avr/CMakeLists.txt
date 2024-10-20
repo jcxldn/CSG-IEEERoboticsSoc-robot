@@ -66,7 +66,7 @@ target_sources(${PROJECT}-core INTERFACE
 
 #add_executable(${PROJECT}-core ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
 
-target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED LibPrintf FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
+target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
 target_compile_options(${PROJECT}-core INTERFACE
     "-Wall"
     "-Wextra"

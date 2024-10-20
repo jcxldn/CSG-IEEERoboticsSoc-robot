@@ -1,14 +1,10 @@
 // Arduino Core
 #include <Arduino.h>
 
-// https://github.com/embeddedartistry/arduino-printf - printf()
-#include <LibPrintf.h>
-
 #include "pixel.h"
 
 Pixel::Pixel()
 {
-    printf("%s: Initialising %i pixel(s).\n\r", __PRETTY_FUNCTION__, PIXEL_NUM);
     this->xLedMutex = xSemaphoreCreateMutex();
     FastLED.addLeds<NEOPIXEL, PIXEL_PIN>(this->leds, PIXEL_NUM);
 }
@@ -17,7 +13,6 @@ void Pixel::color(CRGB color)
 {
 // QEMU stops (freezes?) at FastLED.show() for some reason, so stub this function if using qemu
 #ifdef PLATFORM_TYPE_QEMU
-    printf("%s: Function not available on QEMU\n\r", __PRETTY_FUNCTION__);
     return;
 #endif
 

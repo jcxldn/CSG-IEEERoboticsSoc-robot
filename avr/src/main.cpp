@@ -7,9 +7,6 @@
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 
-// https://github.com/embeddedartistry/arduino-printf - printf()
-#include <LibPrintf.h>
-
 void setup()
 {
   Serial.begin(115200);
@@ -20,20 +17,13 @@ void setup()
     ;
   }
 
-#ifdef PLATFORM_TYPE_QEMU
-  Serial.println("Using QEMU platform.");
-#endif
-#ifdef PLATFORM_TYPE_AVR
-  Serial.println("Using AVR platform.");
-#endif
-
-  printf("%s: Instanciating classes\n\r", __PRETTY_FUNCTION__);
+  Serial.println(F("Instanciating classes"));
 
   Drive drive;
   Pixel p;
   MPUController mpu(&p);
 
-  printf("%s: Registering tasks\n\r", __PRETTY_FUNCTION__);
+  Serial.println(F("Registering tasks"));
 
   xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
 }
