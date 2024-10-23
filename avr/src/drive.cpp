@@ -115,3 +115,14 @@ void Drive::reverse(uint8_t speed)
 {
     this->queueDualSpeedReq(speed, Direction::BACKWARD);
 }
+
+void Drive::standby()
+{
+    // direction, speed does not matter
+    // IN1, IN2, PWM all any, STBY LOW = standby
+    channel_req_t left = {ChannelSide::LEFT, Direction::BACKWARD, 0};
+    channel_req_t right = {ChannelSide::RIGHT, Direction::BACKWARD, 0};
+    drive_req_t req = {StandbyMode::ON, left, right};
+
+    this->enqueue(&req);
+}

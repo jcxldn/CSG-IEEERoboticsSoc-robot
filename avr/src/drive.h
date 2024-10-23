@@ -79,6 +79,7 @@ public:
     // utility functions
     void forward(uint8_t speed);
     void reverse(uint8_t speed);
+    void standby();
 };
 
 #endif /* SRC_DRIVE_H_ */

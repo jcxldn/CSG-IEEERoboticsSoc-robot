@@ -37,7 +37,11 @@ void sensord(void *pvParameters)
   {
     drive->forward(255);
     vTaskDelay(500 / portTICK_PERIOD_MS);
+    drive->standby();
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     drive->reverse(255);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    drive->standby();
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 }
