@@ -116,10 +116,24 @@ void Drive::reverse(uint8_t speed)
     this->queueDualSpeedReq(speed, Direction::BACKWARD);
 }
 
+void Drive::brake()
+{
+    // EITHER "In1 LOW, PWM LOW, STBY HIGH" OR
+    //        "In1 HIGH, PWM LOW, STBY HIGH"
+    // results in "Short brake" (without PWM action)
+    // direction, speed does not matter
+    // IN1, IN2, PWM all any, STBY LOW = standby
+
+    channel_req_t left = {ChannelSide::LEFT, Direction::BACKWARD, 0};
+    channel_req_t right = {ChannelSide::RIGHT, Direction::BACKWARD, 0};
+    drive_req_t req = {StandbyMode::OFF, left, right};
+}
+
 void Drive::standby()
 {
     // direction, speed does not matter
     // IN1, IN2, PWM all any, STBY LOW = standby
+
     channel_req_t left = {ChannelSide::LEFT, Direction::BACKWARD, 0};
     channel_req_t right = {ChannelSide::RIGHT, Direction::BACKWARD, 0};
     drive_req_t req = {StandbyMode::ON, left, right};
