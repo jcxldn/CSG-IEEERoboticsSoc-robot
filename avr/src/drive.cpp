@@ -54,7 +54,7 @@ void Drive::task(void *pvParameters)
         if (xQueueReceive(pThis->xPointerQueue, &(pxRecievedPointer), portMAX_DELAY) == pdTRUE)
         {
             // We have recieved data
-            digitalWrite(pxRecievedPointer->stby, TB6612FNG_PIN_STBY);
+            digitalWrite(TB6612FNG_PIN_STBY, pxRecievedPointer->stby);
 
             pThis->handle_req(pxRecievedPointer->left);
             pThis->handle_req(pxRecievedPointer->right);
@@ -94,7 +94,7 @@ void Drive::enqueue(drive_req_t *req)
     xQueueSend(this->xPointerQueue, (void *)&req, (TickType_t)0);
 }
 
-void Drive::steer(Direction direction, uint8_t leftSpeed, uint8_t rightSpeed, StandbyMode stbyMode = StandbyMode::OFF)
+void Drive::steer(Direction direction, uint8_t leftSpeed, uint8_t rightSpeed, StandbyMode stbyMode)
 {
     channel_req_t left = {ChannelSide::LEFT, direction, leftSpeed};
     channel_req_t right = {ChannelSide::RIGHT, direction, rightSpeed};
@@ -115,7 +115,7 @@ void Drive::brake()
     this->steer(
         Direction::BACKWARD, // can be either
         0,                   // left speed
-        0,                   // right speed
+        0                    // right speed
         // StandbyMode defaults to StandbyMode::OFF
     );
 }

@@ -24,7 +24,7 @@ void setup()
 
   Serial.println(F("Registering tasks"));
 
-  xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, configMAX_PRIORITIES, NULL);
+  xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, 1, NULL);
 }
 
 void loop() {} // Empty, place logic in FreeRTOS tasks instead.
