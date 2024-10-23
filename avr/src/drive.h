@@ -67,20 +67,23 @@ private:
     static void task(void *pvParameters);
 
     void enqueue(drive_req_t *req);
-    void queueDualSpeedReq(uint8_t speed, Direction direction);
 
 public:
     Drive();
 
     // must be public as we are calling from a "Drive*" context not "this"
+    // (when in the FreeRTOS task -> Drive::task)
     void handle_req(channel_req_t req);
     QueueHandle_t xPointerQueue;
 
-    // utility functions
-    void forward(uint8_t speed);
-    void reverse(uint8_t speed);
+    // control functions
     void brake();
     void standby();
+    void steer(Direction direction, uint8_t leftSpeed, uint8_t rightSpeed, StandbyMode stbyMode = StandbyMode::OFF);
+
+    // utility shorthand functions
+    void forward(uint8_t speed);
+    void reverse(uint8_t speed);
 };
 
 #endif /* SRC_DRIVE_H_ */

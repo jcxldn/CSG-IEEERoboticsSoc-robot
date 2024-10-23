@@ -94,27 +94,15 @@ void Drive::enqueue(drive_req_t *req)
     xQueueSend(this->xPointerQueue, (void *)&req, (TickType_t)0);
 }
 
-// Move both sides/channels at the same speed in the specified direction.
-void Drive::queueDualSpeedReq(uint8_t speed, Direction direction)
+void Drive::steer(Direction direction, uint8_t leftSpeed, uint8_t rightSpeed, StandbyMode stbyMode = StandbyMode::OFF)
 {
-    channel_req_t left = {ChannelSide::LEFT, direction, speed};
-    channel_req_t right = {ChannelSide::RIGHT, direction, speed};
-    drive_req_t req = {StandbyMode::OFF, left, right};
-
+    channel_req_t left = {ChannelSide::LEFT, direction, leftSpeed};
+    channel_req_t right = {ChannelSide::RIGHT, direction, rightSpeed};
+    drive_req_t req = {stbyMode, left, right};
     this->enqueue(&req);
 }
 
 // utility funcs below
-
-void Drive::forward(uint8_t speed)
-{
-    this->queueDualSpeedReq(speed, Direction::FORWARD);
-}
-
-void Drive::reverse(uint8_t speed)
-{
-    this->queueDualSpeedReq(speed, Direction::BACKWARD);
-}
 
 void Drive::brake()
 {
@@ -124,9 +112,12 @@ void Drive::brake()
     // direction, speed does not matter
     // IN1, IN2, PWM all any, STBY LOW = standby
 
-    channel_req_t left = {ChannelSide::LEFT, Direction::BACKWARD, 0};
-    channel_req_t right = {ChannelSide::RIGHT, Direction::BACKWARD, 0};
-    drive_req_t req = {StandbyMode::OFF, left, right};
+    this->steer(
+        Direction::BACKWARD, // can be either
+        0,                   // left speed
+        0,                   // right speed
+        // StandbyMode defaults to StandbyMode::OFF
+    );
 }
 
 void Drive::standby()
@@ -134,9 +125,20 @@ void Drive::standby()
     // direction, speed does not matter
     // IN1, IN2, PWM all any, STBY LOW = standby
 
-    channel_req_t left = {ChannelSide::LEFT, Direction::BACKWARD, 0};
-    channel_req_t right = {ChannelSide::RIGHT, Direction::BACKWARD, 0};
-    drive_req_t req = {StandbyMode::ON, left, right};
+    this->steer(
+        Direction::BACKWARD, // can be either
+        0,                   // left speed
+        0,                   // right speed
+        StandbyMode::ON      // Output will be high impedance, see datasheet.
+    );
+}
 
-    this->enqueue(&req);
+void Drive::forward(uint8_t speed)
+{
+    this->steer(Direction::FORWARD, speed, speed);
+}
+
+void Drive::reverse(uint8_t speed)
+{
+    this->steer(Direction::BACKWARD, speed, speed);
 }
