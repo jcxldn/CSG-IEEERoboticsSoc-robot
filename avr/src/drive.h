@@ -8,46 +8,77 @@
 #include <Arduino_FreeRTOS.h>
 #include <queue.h>
 
-#define PIN_MOTOR_LEFT_ENABLE 5
-#define PIN_MOTOR_LEFT_FORWARD 7
-#define PIN_MOTOR_LEFT_REVERSE 8
+// Left uses channel B
+// Right uses channel A
 
-#define PIN_MOTOR_RIGHT_ENABLE 6
-#define PIN_MOTOR_RIGHT_FORWARD 11
-#define PIN_MOTOR_RIGHT_REVERSE 9
+#define TB6612FNG_PIN_STBY 3
+#define TB6612FNG_PIN_PWMA 5
+#define TB6612FNG_PIN_PWMB 6
+#define TB6612FNG_PIN_AIN1 7
+// AIN2 = !AIN1 (wired via SN74LVC2G14 inverter)
+#define TB6612FNG_PIN_BIN1 8
+// BIN2 = !BIN1 (wired via SN74LVC2G14 inverter)
 
-#define PIN_MOTOR_TYPE OUTPUT
+#define PWM_NO_BITS 8
 
-#define REQ_TYPE_LEFT 0
-#define REQ_TYPE_RIGHT 1
+#define PWM_MIN_VALUE 0
+#define PWM_MAX_VALUE (2 ^ PWM_NO_BITS) - 1 // 255 for 8 bits
 
-// analogWrite 0-255 (8 bit)
+// 0 (LOW) - standby ON [TB6612FNG p.4]
+enum StandbyMode
+{
+    ON, // when pin is LOW, standby is ON
+    OFF // when pin in HIGH, standby is OFF
+};
+
+enum ChannelSide
+{
+    LEFT,
+    RIGHT
+};
+
+// might be backwards.
+enum Direction
+{
+    BACKWARD, // In1=0, (In2=1 due to inverter)
+    FORWARD   // In1=1 (In2=0 due to inverter)
+};
+
 typedef struct
 {
-    bool side; // 0 left, 1 right
-    uint8_t speed;
-    bool forward;
-    bool reverse;
-} control_req_t;
+    ChannelSide side;
+    Direction direction;
+    uint8_t pwm; // 0-255 (8-bit)
+} channel_req_t;
 
 typedef struct
 {
-    control_req_t left;
-    control_req_t right;
-} dual_control_req_t;
+    StandbyMode stby;
+    channel_req_t left;
+    channel_req_t right;
+} drive_req_t;
 
 class Drive
 {
 private:
     void setup_pins();
-    void create_queue();
-    void register_task();
-    static void handle_req(control_req_t req);
+    bool create_queue();
+
+    static void task(void *pvParameters);
+
+    void enqueue(drive_req_t *req);
+    void queueDualSpeedReq(uint8_t speed, Direction direction);
 
 public:
     Drive();
-    static void drive_task(void *param);
-    static QueueHandle_t xPointerQueue;
+
+    // must be public as we are calling from a "Drive*" context not "this"
+    void handle_req(channel_req_t req);
+    QueueHandle_t xPointerQueue;
+
+    // utility functions
+    void forward(uint8_t speed);
+    void reverse(uint8_t speed);
 };
 
 #endif /* SRC_DRIVE_H_ */

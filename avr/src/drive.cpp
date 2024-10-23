@@ -8,89 +8,110 @@
 
 #include "drive.h"
 
-/* Declare a variable of type QueueHandle_t to hold the handle of the queue being created. */
-QueueHandle_t Drive::xPointerQueue;
-
 Drive::Drive()
 {
     this->setup_pins();
-    this->create_queue(); // will reg task: todo refactor to be better
-}
-
-void Drive::drive_task(void *param)
-{
-    (void)param; // prevent unused (but required) var warning
-
-    // Create a struct to store the pointer from the object fetched from the queue
-    dual_control_req_t *pxRecievedPointer;
-
-    while (1)
+    bool success = this->create_queue();
+    if (success)
     {
-        // This task will be SUSPENDED until data is available
-        // ie. other tasks can run on this core
-        if (xQueueReceive(xPointerQueue, &(pxRecievedPointer), portMAX_DELAY) == pdTRUE)
-        {
-            // We have recieved data
-            pxRecievedPointer->left.side = REQ_TYPE_LEFT;
-            pxRecievedPointer->right.side = REQ_TYPE_RIGHT;
-
-            handle_req(pxRecievedPointer->left);
-            handle_req(pxRecievedPointer->right);
-        }
+        xTaskCreate(this->task, "drived", configMINIMAL_STACK_SIZE, this, configMAX_PRIORITIES, NULL);
     }
 }
 
 void Drive::setup_pins()
 {
-    pinMode(PIN_MOTOR_LEFT_ENABLE, PIN_MOTOR_TYPE);
-    pinMode(PIN_MOTOR_LEFT_FORWARD, PIN_MOTOR_TYPE);
-    pinMode(PIN_MOTOR_LEFT_REVERSE, PIN_MOTOR_TYPE);
-
-    pinMode(PIN_MOTOR_RIGHT_ENABLE, PIN_MOTOR_TYPE);
-    pinMode(PIN_MOTOR_RIGHT_FORWARD, PIN_MOTOR_TYPE);
-    pinMode(PIN_MOTOR_RIGHT_REVERSE, PIN_MOTOR_TYPE);
+    pinMode(TB6612FNG_PIN_STBY, OUTPUT);
+    pinMode(TB6612FNG_PIN_PWMA, OUTPUT);
+    pinMode(TB6612FNG_PIN_PWMB, OUTPUT);
+    pinMode(TB6612FNG_PIN_AIN1, OUTPUT);
+    pinMode(TB6612FNG_PIN_BIN1, OUTPUT);
 }
 
-void Drive::create_queue()
+bool Drive::create_queue()
 {
-    // Create a queue of a fixed size and type
-    xPointerQueue = xQueueCreate(
+    this->xPointerQueue = xQueueCreate(
         // The number of items the queue can hold
         10,
         // Size of each item only big enough for a pointer
-        sizeof(dual_control_req_t *));
+        sizeof(drive_req_t *));
 
-    if (xPointerQueue == NULL) // 0 == NULL
+    // if null, not created
+    // so return true if created sucessfully
+    return xPointerQueue != NULL;
+}
+
+void Drive::task(void *pvParameters)
+{
+    Drive *pThis = (Drive *)pvParameters;
+
+    // Create a struct to store the pointer from the object fetched from the queue
+    drive_req_t *pxRecievedPointer;
+
+    while (1)
     {
-        // Queue not created
-        // TODO: error state here
-    }
-    else
-    {
-        // Queue created successfully
-        this->register_task();
+        // This task will be SUSPENDED until data is available
+        // ie. other tasks can run on this core
+        if (xQueueReceive(pThis->xPointerQueue, &(pxRecievedPointer), portMAX_DELAY) == pdTRUE)
+        {
+            // We have recieved data
+            digitalWrite(pxRecievedPointer->stby, TB6612FNG_PIN_STBY);
+
+            pThis->handle_req(pxRecievedPointer->left);
+            pThis->handle_req(pxRecievedPointer->right);
+
+            free(pxRecievedPointer); // is this needed - GC??
+        }
     }
 }
 
-void Drive::register_task()
+void Drive::handle_req(channel_req_t req)
 {
-    xTaskCreate(Drive::drive_task, "drived", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
-}
+    int pwm_pin, in1_pin;
 
-void Drive::handle_req(control_req_t req)
-{
-    if (req.side == REQ_TYPE_LEFT)
+    if (req.side == ChannelSide::LEFT)
     {
-        // left
-        analogWrite(PIN_MOTOR_LEFT_ENABLE, req.speed);
-        digitalWrite(PIN_MOTOR_LEFT_FORWARD, req.forward);
-        digitalWrite(PIN_MOTOR_LEFT_REVERSE, req.reverse);
+        // left uses channel B
+        pwm_pin = TB6612FNG_PIN_PWMB;
+        in1_pin = TB6612FNG_PIN_BIN1;
     }
     else
     {
-        // right
-        analogWrite(PIN_MOTOR_RIGHT_ENABLE, req.speed);
-        digitalWrite(PIN_MOTOR_RIGHT_FORWARD, req.forward);
-        digitalWrite(PIN_MOTOR_RIGHT_REVERSE, req.reverse);
+        // right uses channel A
+        pwm_pin = TB6612FNG_PIN_PWMA;
+        in1_pin = TB6612FNG_PIN_AIN1;
     }
+
+    digitalWrite(in1_pin, req.direction);
+    analogWrite(pwm_pin, req.pwm);
+}
+
+void Drive::enqueue(drive_req_t *req)
+{
+    // Add a pointer to the memory address of the message to the queue.
+    // This allows us to add arbitary length datatypes to the queue.
+    // Use a tickType of 0 to not block until a space if available.
+    // TODO: Add handling for when the queue is full, although may be unlikely to happen.
+    xQueueSend(this->xPointerQueue, (void *)&req, (TickType_t)0);
+}
+
+// Move both sides/channels at the same speed in the specified direction.
+void Drive::queueDualSpeedReq(uint8_t speed, Direction direction)
+{
+    channel_req_t left = {ChannelSide::LEFT, direction, speed};
+    channel_req_t right = {ChannelSide::RIGHT, direction, speed};
+    drive_req_t req = {StandbyMode::OFF, left, right};
+
+    this->enqueue(&req);
+}
+
+// utility funcs below
+
+void Drive::forward(uint8_t speed)
+{
+    this->queueDualSpeedReq(speed, Direction::FORWARD);
+}
+
+void Drive::reverse(uint8_t speed)
+{
+    this->queueDualSpeedReq(speed, Direction::BACKWARD);
 }

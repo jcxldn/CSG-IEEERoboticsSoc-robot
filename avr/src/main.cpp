@@ -1,7 +1,6 @@
 #include "main.h"
 
 #include "drive.h"
-#include "motor_controller.h"
 #include "mpu_controller.h"
 
 #include <Arduino.h>
@@ -25,24 +24,20 @@ void setup()
 
   Serial.println(F("Registering tasks"));
 
-  xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
+  xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, configMAX_PRIORITIES, NULL);
 }
 
 void loop() {} // Empty, place logic in FreeRTOS tasks instead.
 
-void sensord(void *param)
+void sensord(void *pvParameters)
 {
-  (void)param;
+  Drive *drive = (Drive *)pvParameters;
 
   for (;;) // never return or exit, infinite loop
   {
-    MotorController::fwd(255);
+    drive->forward(255);
     vTaskDelay(500 / portTICK_PERIOD_MS);
-    MotorController::fwd(0);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    MotorController::rev(255);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    MotorController::fwd(0);
+    drive->reverse(255);
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 }

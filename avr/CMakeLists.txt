@@ -59,7 +59,6 @@ add_library(${PROJECT}-core INTERFACE)
 target_sources(${PROJECT}-core INTERFACE
      ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
-     ${CMAKE_CURRENT_LIST_DIR}/src/motor_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
 )
