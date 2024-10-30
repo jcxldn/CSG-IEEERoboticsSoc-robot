@@ -2,6 +2,7 @@
 
 #include "drive.h"
 #include "mpu_controller.h"
+#include "pid.h"
 
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
@@ -21,6 +22,8 @@ void setup()
   Drive drive;
   Pixel p;
   MPUController mpu(&p);
+  PIDController pid(1.0, 0.1, 0.01);
+  
 
   Serial.println(F("Registering tasks"));
 

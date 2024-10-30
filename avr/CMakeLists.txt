@@ -61,6 +61,8 @@ target_sources(${PROJECT}-core INTERFACE
      ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/pid.cpp
+
 )
 
 #add_executable(${PROJECT}-core ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
