@@ -19,15 +19,16 @@ void setup()
 
   Serial.println(F("Instanciating classes"));
 
-  Drive drive;
+  // Drive drive;
   Pixel p;
   MPUController mpu(&p);
-  PIDController pid(1.0, 0.1, 0.01);
-  
+  // PIDController pid(1.0, 0.1, 0.01);
+
+  mpu.task(&mpu);
 
   Serial.println(F("Registering tasks"));
 
-  xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, 1, NULL);
+  // xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, 1, NULL);
 }
 
 void loop() {} // Empty, place logic in FreeRTOS tasks instead.
