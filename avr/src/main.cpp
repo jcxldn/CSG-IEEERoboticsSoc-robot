@@ -5,7 +5,10 @@
 #include "pid.h"
 
 #include <Arduino.h>
-#include <Arduino_FreeRTOS.h>
+
+Drive *drive;
+Pixel *pixel;
+MPUController *mpu;
 
 void setup()
 {
@@ -20,32 +23,29 @@ void setup()
   Serial.println(F("Instanciating classes"));
 
   // Drive drive;
-  Pixel p;
-  MPUController mpu(&p);
+  drive = new Drive();
+  pixel = new Pixel();
+  mpu = new MPUController(pixel);
   // PIDController pid(1.0, 0.1, 0.01);
 
-  mpu.task(&mpu);
-
-  Serial.println(F("Registering tasks"));
-
-  // xTaskCreate(sensord, "sensord", configMINIMAL_STACK_SIZE, &drive, 1, NULL);
+  pixel->color(CRGB::Green);
 }
 
-void loop() {} // Empty, place logic in FreeRTOS tasks instead.
-
-void sensord(void *pvParameters)
+void loop()
 {
-  Drive *drive = (Drive *)pvParameters;
+  mpu->task();
+  // drive_test();
+}
 
-  for (;;) // never return or exit, infinite loop
-  {
-    drive->forward(255);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    drive->standby();
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    drive->reverse(255);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    drive->standby();
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-  }
+void drive_test()
+{
+  Serial.println("DRIVE TEST");
+  drive->forward(255);
+  delay(500);
+  drive->standby();
+  delay(500);
+  drive->reverse(255);
+  delay(500);
+  drive->standby();
+  delay(500);
 }

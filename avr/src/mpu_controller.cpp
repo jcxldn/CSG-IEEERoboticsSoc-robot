@@ -15,25 +15,29 @@
 MPUController::MPUController(Pixel *p)
 {
     this->p = p;
-    MPUState state = this->init();
+    state = this->initMpu();
 
-    if (state == MPUState::CONNECTED)
-    {
-        // 64+32
-        // 0, 32, 96, 64
-        // today: 0 (gyro sens), 32
-
-        // xTaskCreate(this->task, "mpud", configMINIMAL_STACK_SIZE + 96, this, configMAX_PRIORITIES, NULL);
-    }
-    else
+    if (state != MPUState::CONNECTED)
     {
         // Show error
         Serial.println(F("ERR INIT"));
         p->color(CRGB::Red);
     }
+    else
+    {
+        // Connected
+        state = this->configureMpu();
+        if (state != MPUState::READY)
+        {
+
+            // Show error
+            Serial.println(F("ERR CONF"));
+            p->color(CRGB::Orange);
+        }
+    }
 }
 
-MPUState MPUController::init()
+MPUState MPUController::initMpu()
 {
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
@@ -47,88 +51,73 @@ MPUState MPUController::init()
     if (!(this->mpu.testConnection()))
     {
         // Connection failed.
-        return MPUState::ERROR;
+        return MPUState::ERROR_INIT;
     }
 
     return MPUState::CONNECTED;
 }
 
-void MPUController::task(void *pvParameters)
+MPUState MPUController::configureMpu()
 {
-    MPUController *pThis = (MPUController *)pvParameters;
-
     // setup based on https://github.com/ElectronicCats/mpu6050/blob/master/examples/MPU6050_DMP6/MPU6050_DMP6.ino
 
     // Init DMP
     Serial.println(F("Init DMP..."));
-    pThis->device_state = pThis->mpu.dmpInitialize();
+    device_state = mpu.dmpInitialize();
 
-    pThis->mpu.setXGyroOffset(0);
-    pThis->mpu.setYGyroOffset(0);
-    pThis->mpu.setZGyroOffset(0);
-    pThis->mpu.setXAccelOffset(0);
-    pThis->mpu.setYAccelOffset(0);
-    pThis->mpu.setZAccelOffset(0);
+    mpu.setXGyroOffset(0);
+    mpu.setYGyroOffset(0);
+    mpu.setZGyroOffset(0);
+    mpu.setXAccelOffset(0);
+    mpu.setYAccelOffset(0);
+    mpu.setZAccelOffset(0);
 
-    Serial.println(pThis->device_state);
+    Serial.println(device_state);
 
     // Calibration time
-    if (pThis->device_state == 0)
+    if (device_state == 0)
     {
-        Serial.println(F("CALIBRATING"));
+        p->color(CRGB::Blue);
         // success
 
-        pThis->mpu.CalibrateAccel(7); // 6-7 is a good combo
-        pThis->mpu.CalibrateGyro(7);  // 6-7 is a good combo
-        // pThis->mpu.PrintActiveOffsets();
+        mpu.CalibrateAccel(7); // 6-7 is a good combo
+        mpu.CalibrateGyro(7);  // 6-7 is a good combo
+        // mpu.PrintActiveOffsets();
 
         // print active offsets
+        mpu.PrintActiveOffsets();
 
         // enable DMP
-        pThis->mpu.setDMPEnabled(true);
+        mpu.setDMPEnabled(true);
 
         // Enable interrupt detection (freertos)
         // N/A here since INT pin is not connected
 
-        pThis->packet_size = pThis->mpu.dmpGetFIFOPacketSize();
-        pThis->fifo_count = pThis->mpu.getFIFOCount();
+        packet_size = mpu.dmpGetFIFOPacketSize();
+        // fifo_count = mpu.getFIFOCount();
 
-        uint8_t FIFOBuffer[64];
-        Quaternion q; // [w, x, y, z]         Quaternion container
-        // VectorInt16 aa;      // [x, y, z]            Accel sensor measurements
-        // VectorInt16 gy;      // [x, y, z]            Gyro sensor measurements
-        // VectorInt16 aaReal;  // [x, y, z]            Gravity-free accel sensor measurements
-        // VectorInt16 aaWorld; // [x, y, z]            World-frame accel sensor measurements
-        VectorFloat gravity; // [x, y, z]            Gravity vector
-        float ypr[3];        // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
-
-        while (1)
-        {
-            pThis->fifo_count = pThis->mpu.getFIFOCount();
-
-            if (pThis->fifo_count < pThis->packet_size)
-            {
-            }
-
-            // packet is ready
-            if (pThis->mpu.dmpGetCurrentFIFOPacket(FIFOBuffer))
-            {
-
-                pThis->mpu.dmpGetQuaternion(&q, FIFOBuffer);
-                pThis->mpu.dmpGetGravity(&gravity, &q);
-                pThis->mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-
-                String a = String(ypr[0] * RAD_TO_DEG, 4);
-                Serial.println(a);
-
-                // vTaskDelay(1000 / portTICK_PERIOD_MS);
-            }
-        }
+        return MPUState::READY;
     }
     else
     {
-        // Show error
-        pThis->p->color(CRGB::Green);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        return MPUState::ERROR_CONFIGURE;
+    }
+};
+
+void MPUController::task()
+{
+    if (mpu.getFIFOCount() >= packet_size)
+    {
+        // packet is ready
+        if (mpu.dmpGetCurrentFIFOPacket(measurements.FIFOBuffer))
+        {
+            mpu.dmpGetQuaternion(&measurements.q, measurements.FIFOBuffer);
+            mpu.dmpGetGravity(&measurements.gravity, &measurements.q);
+            mpu.dmpGetYawPitchRoll(measurements.ypr, &measurements.q, &measurements.gravity);
+
+            String a = String(measurements.ypr[0] * RAD_TO_DEG, 4);
+
+            Serial.println(a);
+        }
     }
 }

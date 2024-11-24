@@ -12,26 +12,45 @@
 
 enum MPUState
 {
+    READY,
     CONNECTED,
-    ERROR
+    ERROR_INIT,
+    ERROR_CONFIGURE
+};
+
+class MPUMeasurements
+{
+public:
+    uint8_t FIFOBuffer[64];
+    Quaternion q; // [w, x, y, z]         Quaternion container
+    // VectorInt16 aa;      // [x, y, z]            Accel sensor measurements
+    // VectorInt16 gy;      // [x, y, z]            Gyro sensor measurements
+    // VectorInt16 aaReal;  // [x, y, z]            Gravity-free accel sensor measurements
+    // VectorInt16 aaWorld; // [x, y, z]            World-frame accel sensor measurements
+    VectorFloat gravity; // [x, y, z]            Gravity vector
+    float ypr[3];        // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
 };
 
 class MPUController
 {
 private:
-    MPUState init();
+    MPUState initMpu();
+    MPUState configureMpu();
 
-        Pixel *p;
+    Pixel *p;
 
-public:
-    MPUController(Pixel *p);
-    static void task(void *pvParameters);
+    MPUState state;
 
-    // public so task context can access
     MPU6050_6Axis_MotionApps20 mpu;
     uint8_t device_state;
     uint16_t packet_size;
     uint16_t fifo_count;
+
+public:
+    MPUController(Pixel *p);
+    void task();
+
+    MPUMeasurements measurements;
 };
 
 #endif /* SRC_MPU_CONTROLLER_H_ */

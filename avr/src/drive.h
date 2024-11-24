@@ -4,10 +4,6 @@
 // uint8_t
 #include <stdint.h>
 
-// QueueHandle_t
-#include <Arduino_FreeRTOS.h>
-#include <queue.h>
-
 // Left uses channel B
 // Right uses channel A
 
@@ -61,20 +57,11 @@ typedef struct
 class Drive
 {
 private:
-    void setup_pins();
-    bool create_queue();
-
-    static void task(void *pvParameters);
-
-    void enqueue(drive_req_t *req);
+    void request(drive_req_t *req);
+    void handle_channel_req(channel_req_t req);
 
 public:
     Drive();
-
-    // must be public as we are calling from a "Drive*" context not "this"
-    // (when in the FreeRTOS task -> Drive::task)
-    void handle_req(channel_req_t req);
-    QueueHandle_t xPointerQueue;
 
     // control functions
     void brake();

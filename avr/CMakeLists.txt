@@ -47,12 +47,6 @@ project(${PROJECT}-core C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-# Pull in FreeRTOS
-set(FREERTOS_KERNEL_PATH ../lib/freertos-kernel CACHE PATH "Path to the FreeRTOS Kernel")
-set(FREERTOS_ARDUINO_PATH ../lib/freertos-arduino/src CACHE PATH "Path to the FreeRTOS Arduino lib")
-set(FREERTOS_PORT_PATH portable/ThirdParty/GCC/ATmega)
-include(./cmake/freertos-lib.cmake)
-
 #add_executable(${PROJECT}-core src/main.cpp)
 add_library(${PROJECT}-core INTERFACE)
 
@@ -64,15 +58,12 @@ target_sources(${PROJECT}-core INTERFACE
      ${CMAKE_CURRENT_LIST_DIR}/src/pid.cpp
 
 )
-
-#add_executable(${PROJECT}-core ${FREERTOS_ARDUINO_PATH}/variantHooks.cpp)
-
-target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED FreeRTOS-Kernel FreeRTOS-Kernel-Heap3)
-target_compile_options(${PROJECT}-core INTERFACE
-    "-Wall"
-    "-Wextra"
-    "-pedantic"
-)
+target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED)
+#target_compile_options(${PROJECT}-core INTERFACE
+#    "-Wall"
+#    "-Wextra"
+#    "-pedantic"
+#)
 
 
 
