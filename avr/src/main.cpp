@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "drive.h"
+#include "infrared.h"
 #include "mpu_controller.h"
 #include "pid.h"
 
@@ -9,6 +10,7 @@
 Drive *drive;
 Pixel *pixel;
 MPUController *mpu;
+Infrared *ir;
 
 void setup()
 {
@@ -26,6 +28,7 @@ void setup()
   drive = new Drive();
   pixel = new Pixel();
   mpu = new MPUController(pixel);
+  ir = new Infrared();
   // PIDController pid(1.0, 0.1, 0.01);
 
   pixel->color(CRGB::Green);
@@ -34,18 +37,11 @@ void setup()
 void loop()
 {
   mpu->task();
-  // drive_test();
+  ir->display();
+  drive_task();
 }
 
-void drive_test()
+void drive_task()
 {
-  Serial.println("DRIVE TEST");
-  drive->forward(255);
-  delay(500);
-  drive->standby();
-  delay(500);
-  drive->reverse(255);
-  delay(500);
-  drive->standby();
-  delay(500);
+  Serial.println(F("drive_task"));
 }

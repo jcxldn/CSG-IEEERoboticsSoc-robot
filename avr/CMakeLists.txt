@@ -53,12 +53,13 @@ add_library(${PROJECT}-core INTERFACE)
 target_sources(${PROJECT}-core INTERFACE
      ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/drive.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/infrared.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pid.cpp
 
 )
-target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED)
+target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 FastLED LibPrintf)
 #target_compile_options(${PROJECT}-core INTERFACE
 #    "-Wall"
 #    "-Wextra"
