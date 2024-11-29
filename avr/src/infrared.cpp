@@ -1,8 +1,6 @@
 // Arduino Core
 #include <Arduino.h>
 
-#include <LibPrintf.h>
-
 #include "infrared.h"
 
 Infrared::Infrared()
@@ -23,7 +21,7 @@ void Infrared::display()
     // max (blk) ~700
     // min (wht) ~30
     IRState s = read();
-    printf("[%i,%i,%i]\r\n", s.left, s.centre, s.right);
+    // printf("[%i,%i,%i]\r\n", s.left, s.centre, s.right);
     delay(100);
 }
 
@@ -109,10 +107,17 @@ ir_track_status IRState::tick(Drive *drive, Pixel *pixel)
     {
     case TRACKING_ALL_WHITE:
         // all white, go forwards
-        // drive->forward(255);
+        drive->forward(255);
         break;
     case TRACKING_ALL_BLACK:
         // drive->brake(); // TODO: fix
+
+        drive->brake();
+        delay(500);
+        drive->turnUntilDegreesRelative(90);
+        for (;;)
+        {
+        }
         break;
     case TRACKING_ON_LINE:
         // think there is a line

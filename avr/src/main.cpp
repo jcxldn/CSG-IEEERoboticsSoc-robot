@@ -7,8 +7,6 @@
 
 #include <Arduino.h>
 
-#include <LibPrintf.h>
-
 Drive *drive;
 Pixel *pixel;
 MPUController *mpu;
@@ -39,12 +37,7 @@ void setup()
 void loop()
 {
   // mpu->task();
-  //  drive_task();
-
-  drive->turnUntilDegreesRelative(90);
-  for (;;)
-  {
-  }
+  drive_task();
 }
 
 void drive_task()
@@ -52,7 +45,7 @@ void drive_task()
   // Read IR sensors
   // ir->display();
   IRState s = ir->read();
-  printf("[%i,%i,%i]\r\n", s.left, s.centre, s.right);
+  // printf("[%i,%i,%i]\r\n", s.left, s.centre, s.right);
   s.tick(drive, pixel);
   // drive->turnUntilDegreesAbsolute(200, Direction::FORWARD, 255, 255);
 }
