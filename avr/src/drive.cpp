@@ -3,8 +3,12 @@
 
 #include "drive.h"
 
-Drive::Drive()
+#include <LibPrintf.h>
+
+Drive::Drive(MPUController *mpu)
 {
+    this->mpu = mpu;
+
     // Setup pins
     pinMode(TB6612FNG_PIN_STBY, OUTPUT);
     pinMode(TB6612FNG_PIN_PWMA, OUTPUT);
@@ -89,4 +93,46 @@ void Drive::forward(uint8_t speed)
 void Drive::reverse(uint8_t speed)
 {
     this->steer(Direction::BACKWARD, speed, speed);
+}
+
+// -179.99 -> 180
+int wrap(int direction)
+{
+    while (direction < -179.99)
+        direction += (180 * 2) - 0.01;
+    while (direction > 180)
+        direction -= (180 * 2) - 0.01;
+    return direction;
+}
+
+// blocking
+void Drive::turnUntilDegreesRelative(float deg)
+{
+    float currentAngle = mpu->task();
+
+    float targetAngle = wrap(currentAngle + deg);
+
+    // printf("%f -> %f (deg: %f)\r\n", currentAngle, targetAngle, deg);
+
+    int threshold = 15;
+
+    while (abs(int(trunc(targetAngle - currentAngle))) > 1)
+    {
+        // -deg means turn left
+        if (deg > 0)
+        {
+            // turning right
+
+            // 255,25 -> 1.76 out
+            steer(Direction::FORWARD, 255, 25);
+        }
+        else
+        {
+            // turning left
+        }
+        currentAngle = mpu->task();
+        Serial.println(abs((targetAngle) - (currentAngle)));
+    }
+
+    brake();
 }

@@ -4,6 +4,8 @@
 // uint8_t
 #include <stdint.h>
 
+#include "mpu_controller.h"
+
 // Left uses channel B
 // Right uses channel A
 
@@ -60,8 +62,10 @@ private:
     void request(drive_req_t *req);
     void handle_channel_req(channel_req_t req);
 
+    MPUController *mpu;
+
 public:
-    Drive();
+    Drive(MPUController *mpu);
 
     // control functions
     void brake();
@@ -71,6 +75,7 @@ public:
     // utility shorthand functions
     void forward(uint8_t speed);
     void reverse(uint8_t speed);
+    void turnUntilDegreesRelative(float deg);
 };
 
 #endif /* SRC_DRIVE_H_ */

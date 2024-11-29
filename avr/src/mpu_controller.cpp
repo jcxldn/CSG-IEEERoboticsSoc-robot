@@ -104,7 +104,7 @@ MPUState MPUController::configureMpu()
     }
 };
 
-void MPUController::task()
+float MPUController::task()
 {
     if (mpu.getFIFOCount() >= packet_size)
     {
@@ -115,9 +115,9 @@ void MPUController::task()
             mpu.dmpGetGravity(&measurements.gravity, &measurements.q);
             mpu.dmpGetYawPitchRoll(measurements.ypr, &measurements.q, &measurements.gravity);
 
-            String a = String(measurements.ypr[0] * RAD_TO_DEG, 4);
-
-            Serial.println(a);
+            float degrees = measurements.ypr[0] * RAD_TO_DEG;
+            Serial.println(String(degrees));
+            return degrees;
         }
     }
 }

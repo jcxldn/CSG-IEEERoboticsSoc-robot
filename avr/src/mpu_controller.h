@@ -48,7 +48,7 @@ private:
 
 public:
     MPUController(Pixel *p);
-    void task();
+    float task();
 
     MPUMeasurements measurements;
 };

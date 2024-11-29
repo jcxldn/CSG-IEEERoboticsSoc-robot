@@ -7,6 +7,8 @@
 
 #include <Arduino.h>
 
+#include <LibPrintf.h>
+
 Drive *drive;
 Pixel *pixel;
 MPUController *mpu;
@@ -25,9 +27,9 @@ void setup()
   Serial.println(F("Instanciating classes"));
 
   // Drive drive;
-  drive = new Drive();
-  pixel = new Pixel();
   mpu = new MPUController(pixel);
+  drive = new Drive(mpu);
+  pixel = new Pixel();
   ir = new Infrared();
   // PIDController pid(1.0, 0.1, 0.01);
 
@@ -36,12 +38,21 @@ void setup()
 
 void loop()
 {
-  mpu->task();
-  ir->display();
-  drive_task();
+  // mpu->task();
+  //  drive_task();
+
+  drive->turnUntilDegreesRelative(90);
+  for (;;)
+  {
+  }
 }
 
 void drive_task()
 {
-  Serial.println(F("drive_task"));
+  // Read IR sensors
+  // ir->display();
+  IRState s = ir->read();
+  printf("[%i,%i,%i]\r\n", s.left, s.centre, s.right);
+  s.tick(drive, pixel);
+  // drive->turnUntilDegreesAbsolute(200, Direction::FORWARD, 255, 255);
 }
