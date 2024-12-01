@@ -108,7 +108,8 @@ int wrap(int direction)
 // blocking
 void Drive::turnUntilDegreesRelative(float deg)
 {
-    float currentAngle = mpu->task();
+    mpu->read();
+    float currentAngle = mpu->measurements.getDegrees();
 
     float targetAngle = wrap(currentAngle + deg);
 
@@ -138,8 +139,8 @@ void Drive::turnUntilDegreesRelative(float deg)
             Serial.println(F("(ACTION: LEFT)"));
             steer(Direction::FORWARD, 25, (int)(255 * scalingPercentage));
         }
-        currentAngle = mpu->task();
-
+        mpu->read();
+        currentAngle = mpu->measurements.getDegrees();
         offsetToTarget = targetAngle - currentAngle;
 
         Serial.print(F("[CURR_ANGLE: "));

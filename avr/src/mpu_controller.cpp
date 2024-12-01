@@ -104,9 +104,8 @@ MPUState MPUController::configureMpu()
     }
 };
 
-float lastValue;
-
-float MPUController::task()
+// returns true if data was updated, else false (if packet not ready)
+boolean MPUController::read()
 {
     if (mpu.getFIFOCount() >= packet_size)
     {
@@ -115,15 +114,24 @@ float MPUController::task()
         {
             mpu.dmpGetQuaternion(&measurements.q, measurements.FIFOBuffer);
             mpu.dmpGetGravity(&measurements.gravity, &measurements.q);
+
+            // Heading
             mpu.dmpGetYawPitchRoll(measurements.ypr, &measurements.q, &measurements.gravity);
 
-            float degrees = measurements.ypr[0] * RAD_TO_DEG;
-            lastValue = degrees;
-            return degrees;
+            // Linear Acceleration
+            mpu.dmpGetLinearAccel(&measurements.aaReal, &measurements.aa, &measurements.gravity);
+            mpu.dmpGetLinearAccelInWorld(&measurements.aaWorld, &measurements.aaReal, &measurements.q);
+
+            return true;
         }
     }
     else
     {
-        return lastValue;
+        return false;
     }
+}
+
+float MPUMeasurements::getDegrees()
+{
+    return ypr[0] * RAD_TO_DEG;
 }
