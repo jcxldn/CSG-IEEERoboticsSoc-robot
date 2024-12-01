@@ -32,7 +32,7 @@ MPUController::MPUController(Pixel *p)
 
             // Show error
             Serial.println(F("ERR CONF"));
-            p->color(CRGB::Orange);
+            p->color(CRGB::Red);
         }
     }
 }

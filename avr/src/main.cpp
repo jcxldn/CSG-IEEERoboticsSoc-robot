@@ -31,7 +31,17 @@ void setup()
   ir = new Infrared();
   // PIDController pid(1.0, 0.1, 0.01);
 
+  pixel->color(CRGB::Orange);
+
+  // wait for button press
+  pinMode(2, INPUT);
+  while (digitalRead(2) == HIGH)
+  {
+    delay(100);
+  }
+
   pixel->color(CRGB::Green);
+  delay(1000);
 }
 
 void loop()
