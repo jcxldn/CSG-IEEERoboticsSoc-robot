@@ -114,24 +114,49 @@ void Drive::turnUntilDegreesRelative(float deg)
 
     // printf("%f -> %f (deg: %f)\r\n", currentAngle, targetAngle, deg);
 
-    int threshold = 15;
+    float offsetToTarget = targetAngle - currentAngle;
 
-    while (abs(int(trunc(targetAngle - currentAngle))) > 1)
+    float initialOffset = offsetToTarget;
+
+    while (abs(offsetToTarget) > 1) // less leads to "wobble" rn
     {
+        float scalingPercentage = max(offsetToTarget / initialOffset, 0.5);
+        Serial.print(F("[LOOP] "));
+
         // -deg means turn left
-        if (deg > 0)
+        if (offsetToTarget > 0)
         {
             // turning right
 
             // 255,25 -> 1.76 out
-            steer(Direction::FORWARD, 255, 25);
+            Serial.print(F("(ACTION: RIGHT) "));
+            steer(Direction::FORWARD, (int)(255 * scalingPercentage), 25);
         }
         else
         {
             // turning left
+            Serial.println(F("(ACTION: LEFT)"));
+            steer(Direction::FORWARD, 25, (int)(255 * scalingPercentage));
         }
         currentAngle = mpu->task();
-        Serial.println(abs((targetAngle) - (currentAngle)));
+
+        offsetToTarget = targetAngle - currentAngle;
+
+        Serial.print(F("[CURR_ANGLE: "));
+        Serial.print(currentAngle);
+        Serial.print("] ");
+
+        Serial.print(F("[OFF_TO_TARGET: "));
+        Serial.print(offsetToTarget);
+        Serial.print("] ");
+
+        Serial.print(F("[STEER: "));
+        Serial.print((int)(255 * scalingPercentage));
+        Serial.print("] ");
+
+        Serial.print(F("[SCALING: "));
+        Serial.print(scalingPercentage);
+        Serial.print("] \r\n");
     }
 
     brake();
