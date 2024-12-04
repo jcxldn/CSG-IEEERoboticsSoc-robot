@@ -54,6 +54,16 @@ void loop()
 
 void blockUntilOn(ir_track_parts_visible item)
 {
+  while (ir->read().visible2 & item == 1)
+  {
+    ;
+    ;
+  }
+  return;
+}
+
+void blockUntilOnlyOn(ir_track_parts_visible item)
+{
   while (ir->read().visible == item)
   {
     ;
@@ -81,27 +91,31 @@ void drive_task()
   case LINE_NONE:
     Serial.println(F("LINE_NONE"));
     // all white, go forward
-    drive->forward(128);
+    drive->forward(255);
     break;
   case LINE_LEFT:
     Serial.println(F("LINE_LEFT"));
     // turn right
     isTurning = true;
-    drive->steer(Direction::FORWARD, 0, 128);
-    blockUntilOn(LINE_LEFT);
+    drive->steer(Direction::FORWARD, 0, 255);
+    blockUntilOn(LINE_CENTRE);
+    drive->steer(Direction::FORWARD, 0, 196);
+    blockUntilOnlyOn(LINE_LEFT);
     break;
   case LINE_CENTRE:
     Serial.println(F("LINE_CENTRE"));
     // go straight
-    drive->forward(128);
+    drive->forward(255);
     blockUntilOff(LINE_CENTRE);
     break;
   case LINE_RIGHT:
     Serial.println(F("LINE_RIGHT"));
     // turn left
     isTurning = true;
-    drive->steer(Direction::FORWARD, 128, 0);
-    blockUntilOn(LINE_RIGHT);
+    drive->steer(Direction::FORWARD, 255, 0);
+    blockUntilOn(LINE_CENTRE);
+    drive->steer(Direction::FORWARD, 196, 0);
+    blockUntilOnlyOn(LINE_RIGHT);
     break;
   }
 

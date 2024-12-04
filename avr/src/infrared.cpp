@@ -24,6 +24,9 @@ IRState::IRState(ir_channel_t left, ir_channel_t centre, ir_channel_t right)
     this->visible = (ir_track_parts_visible)(channelOnLine(left, LINE_LEFT) +
                                              channelOnLine(centre, LINE_CENTRE) +
                                              channelOnLine(right, LINE_RIGHT));
+    this->visible2 = (ir_track_parts_visible)(channelOnLine2(left, LINE_LEFT) +
+                                              channelOnLine2(centre, LINE_CENTRE) +
+                                              channelOnLine2(right, LINE_RIGHT));
 }
 
 // return the visible enum (one bit set corresponding to channel)
@@ -31,6 +34,18 @@ IRState::IRState(ir_channel_t left, ir_channel_t centre, ir_channel_t right)
 ir_track_parts_visible IRState::channelOnLine(ir_channel_t chan, ir_track_parts_visible bit)
 {
     if (chan > BLACK_MIN_THRESHOLD)
+    {
+        return bit;
+    }
+    else
+    {
+        return LINE_NONE;
+    }
+}
+
+ir_track_parts_visible IRState::channelOnLine2(ir_channel_t chan, ir_track_parts_visible bit)
+{
+    if (chan > BLACK_MIN_THRESHOLD / 4)
     {
         return bit;
     }

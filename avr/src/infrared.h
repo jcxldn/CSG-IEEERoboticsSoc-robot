@@ -37,12 +37,14 @@ class IRState
 {
 private:
     ir_track_parts_visible channelOnLine(ir_channel_t chan, ir_track_parts_visible bit);
+    ir_track_parts_visible channelOnLine2(ir_channel_t chan, ir_track_parts_visible bit);
 
 public:
     ir_channel_t left;
     ir_channel_t centre;
     ir_channel_t right;
     ir_track_parts_visible visible;
+    ir_track_parts_visible visible2;
 
     IRState(ir_channel_t left, ir_channel_t centre, ir_channel_t right);
 };
