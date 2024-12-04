@@ -88,7 +88,7 @@ void drive_task()
     // turn right
     isTurning = true;
     drive->steer(Direction::FORWARD, 0, 128);
-    blockUntilOn(LINE_CENTRE);
+    blockUntilOn(LINE_LEFT);
     break;
   case LINE_CENTRE:
     Serial.println(F("LINE_CENTRE"));
@@ -101,32 +101,7 @@ void drive_task()
     // turn left
     isTurning = true;
     drive->steer(Direction::FORWARD, 128, 0);
-    blockUntilOn(LINE_CENTRE);
-    break;
-  case LINE_LEFT_CENTRE:
-    Serial.println(F("LINE_LEFT_CENTRE"));
-    // turn slight left
-    isTurning = true;
-    drive->steer(Direction::FORWARD, 64, 0);
     blockUntilOn(LINE_RIGHT);
-    break;
-  case LINE_LEFT_CENTRE_RIGHT:
-    Serial.println(F("LINE_LEFT_CENTRE_RIGHT"));
-    // temp logic
-    drive->forward(128);
-    blockUntilOff(LINE_CENTRE);
-    // end
-    // 90 degrees
-    // drive->steer(Direction::FORWARD, 128, 0);
-    // drive->turnUntilDegreesRelative(90);
-    // drive->brake();
-    break;
-  case LINE_CENTRE_RIGHT:
-    Serial.println(F("LINE_CENTRE_RIGHT"));
-    // turn slight right
-    isTurning = true;
-    drive->steer(Direction::FORWARD, 0, 64);
-    blockUntilOn(LINE_LEFT);
     break;
   }
 
