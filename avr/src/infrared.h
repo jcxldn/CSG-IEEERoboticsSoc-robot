@@ -5,7 +5,6 @@
 #define INFRARED_PIN_CENTRE A1
 #define INFRARED_PIN_RIGHT A0
 
-#define WHITE_MAX_THRESHOLD 150
 #define BLACK_MIN_THRESHOLD 450
 
 // uint8_t
@@ -16,7 +15,7 @@
 
 typedef uint16_t ir_channel_t;
 
-enum ir_track_status
+enum ir_track_parts_visible
 {
     LINE_NONE = 0b0000,
     LINE_LEFT = 0b0001,
@@ -36,18 +35,16 @@ enum ir_line_tracking_status
 
 class IRState
 {
+private:
+    ir_track_parts_visible channelOnLine(ir_channel_t chan, ir_track_parts_visible bit);
+
 public:
     ir_channel_t left;
     ir_channel_t centre;
     ir_channel_t right;
+    ir_track_parts_visible visible;
 
-    ir_track_status match(ir_channel_t value);
-    ir_track_status getMax();
-    ir_track_status getMin();
-
-    // public:
     IRState(ir_channel_t left, ir_channel_t centre, ir_channel_t right);
-    ir_track_status tick(Drive *drive, Pixel *pixel);
 };
 
 class Infrared
