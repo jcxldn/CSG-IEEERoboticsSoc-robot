@@ -56,6 +56,7 @@ target_sources(${PROJECT}-core INTERFACE
      ${CMAKE_CURRENT_LIST_DIR}/src/infrared.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/mpu_controller.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pixel.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/src/pid_consumer.cpp
      ${CMAKE_CURRENT_LIST_DIR}/src/pid.cpp
 
 )
@@ -65,6 +66,14 @@ target_link_libraries(${PROJECT}-core INTERFACE ArduinoCore ArduinoWire MPU6050 
 #    "-Wextra"
 #    "-pedantic"
 #)
+
+# enable printf
+target_link_options(${PROJECT}-core INTERFACE
+#     "-Wl"
+     "-u"
+     "vfprintf"
+     "-lprintf_flt"
+)
 
 
 
