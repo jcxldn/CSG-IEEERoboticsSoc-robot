@@ -21,8 +21,6 @@ boolean isTurning;
 
 float lastTime;
 
-pidconsumer_block_until blockCondition = pidconsumer_block_until::NONE;
-
 // printf
 FILE f_out;
 int sput(char c, __attribute__((unused)) FILE *f) { return !Serial.write(c); }
@@ -134,15 +132,17 @@ void loop()
 
   float dt = currTime - lastTime;
 
-  float data = pid->compute(pidInput, GOAL_CENTRE, dt);
+  float data = pid->compute(GOAL_CENTRE, pidInput, dt);
 
   lastTime = currTime;
   pidLastMeasured = pidInput;
   // handling
 
-  if (data > 0)
+  if (data > 0) // turn right
   {
+    pixel->color(CRGB::Green);
     int speed = constrain(data, SPEED_ACTIVE_MIN, SPEED_ACTIVE_MAX);
+
     if (speed < SPEED_DIFF)
     {
       lSpeed = SPEED_ACTIVE_MAX;
@@ -150,13 +150,14 @@ void loop()
     }
     else
     {
-      lSpeed = SPEED_ACTIVE_MIN;
-      rSpeed = speed;
+      lSpeed = speed;
+      rSpeed = SPEED_ACTIVE_MIN;
     }
   }
 
-  else if (data < 0)
+  else if (data < 0) // turn left
   {
+    pixel->color(CRGB::Blue);
     // flip as will be negative
     int speed = constrain(-data, SPEED_ACTIVE_MIN, SPEED_ACTIVE_MAX);
 
@@ -168,12 +169,13 @@ void loop()
     }
     else
     {
-      lSpeed = speed;
-      rSpeed = SPEED_ACTIVE_MIN;
+      lSpeed = SPEED_ACTIVE_MIN;
+      rSpeed = speed;
     }
   }
   else
   {
+    pixel->color(CRGB::Red);
     // either none on  line or all on line
     // TODO, use PID in gyro to go straight
     lSpeed = SPEED_ACTIVE_MAX;
@@ -193,7 +195,7 @@ void loop()
          lSpeed,
          rSpeed);
 
-  // drive->steer(Direction::FORWARD, lSpeed, rSpeed);
+  drive->steer(Direction::FORWARD, lSpeed, rSpeed);
 }
 void drive_task()
 {
