@@ -15,7 +15,7 @@ PIDConsumer::PIDConsumer()
      *
      * therefore: kp = max_speed / max_error
      */
-    kp = (float)MAX_SPEED / (float)GOAL;
+    kp = (float)(MAX_SPEED * 2) / (float)GOAL;
 
     Serial.print(F("KP: "));
     Serial.print(kp, 5);
